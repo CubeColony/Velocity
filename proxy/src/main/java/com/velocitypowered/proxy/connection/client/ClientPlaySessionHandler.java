@@ -187,18 +187,9 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
               String messageNew = eventMsg.get();
               if (playerKey != null) {
                 if (signedMessage != null && !messageNew.equals(signedMessage.getMessage())) {
-                  if (playerKey.getKeyRevision().compareTo(IdentifiedKey.Revision.LINKED_V2) >= 0) {
-                    // Bad, very bad.
-                    logger.fatal("A plugin tried to change a signed chat message. "
-                        + "This is no longer possible in 1.19.1 and newer. "
-                        + "Disconnecting player " + player.getUsername());
-                    player.disconnect(Component.text("A proxy plugin caused an illegal protocol state. "
-                        + "Contact your network administrator."));
-                  } else {
-                    logger.warn("A plugin changed a signed chat message. The server may not accept it.");
-                    return ChatBuilder.builder(player.getProtocolVersion())
-                        .message(messageNew).toServer();
-                  }
+                  logger.warn("A plugin changed a signed chat message. The server may not accept it.");
+                  return ChatBuilder.builder(player.getProtocolVersion())
+                          .message(messageNew).toServer();
                 } else {
                   return original;
                 }
@@ -208,14 +199,6 @@ public class ClientPlaySessionHandler implements MinecraftSessionHandler {
               }
             } else {
               return original;
-            }
-          } else {
-            if (playerKey != null && playerKey.getKeyRevision().compareTo(IdentifiedKey.Revision.LINKED_V2) >= 0) {
-              logger.fatal("A plugin tried to cancel a signed chat message."
-                  + " This is no longer possible in 1.19.1 and newer. "
-                  + "Disconnecting player " + player.getUsername());
-              player.disconnect(Component.text("A proxy plugin caused an illegal protocol state. "
-                  + "Contact your network administrator."));
             }
           }
           return null;
